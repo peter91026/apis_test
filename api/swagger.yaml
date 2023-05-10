@@ -218,6 +218,140 @@ definitions:
         description: 公司統一編號
         type: integer
     type: object
+  purchase.Created:
+    properties:
+      applicant:
+        description: 申請人
+        type: string
+      company_name:
+        description: 公司名稱
+        type: string
+      department:
+        description: 部門
+        type: string
+      price:
+        description: 價格
+        type: integer
+      product_name:
+        description: 品名
+        type: string
+      purchase_quantity:
+        description: 數量
+        type: integer
+    required:
+    - applicant
+    - company_name
+    - department
+    - price
+    - product_name
+    - purchase_quantity
+    type: object
+  purchase.List:
+    properties:
+      limit:
+        description: 筆數(請從1開始帶入,最高上限20)
+        type: integer
+      page:
+        description: 頁數(請從1開始帶入)
+        type: integer
+      pages:
+        description: 總頁數
+        type: integer
+      purchase:
+        items:
+          properties:
+            applicant:
+              description: 申請人
+              type: string
+            company_name:
+              description: 公司名稱
+              type: string
+            created_by:
+              description: 創建者
+              type: string
+            department:
+              description: 部門
+              type: string
+            price:
+              description: 價格
+              type: integer
+            product_name:
+              description: 品名
+              type: string
+            purchase_id:
+              description: 編號
+              type: string
+            purchase_quantity:
+              description: 數量
+              type: integer
+          type: object
+        type: array
+      total:
+        type: integer
+    required:
+    - limit
+    - page
+    type: object
+  purchase.Single:
+    properties:
+      applicant:
+        description: 申請人
+        type: string
+      company_name:
+        description: 公司名稱
+        type: string
+      created_at:
+        description: 創建時間
+        type: string
+      created_by:
+        description: 創建者
+        type: string
+      department:
+        description: 部門
+        type: string
+      price:
+        description: 價格
+        type: integer
+      product_name:
+        description: 品名
+        type: string
+      purchase_id:
+        description: 編號
+        type: string
+      purchase_quantity:
+        description: 數量
+        type: integer
+      updated_at:
+        description: 更新時間
+        type: string
+      updated_by:
+        description: 更新者
+        type: string
+    type: object
+  purchase.Updated:
+    properties:
+      applicant:
+        description: 申請人
+        type: string
+      company_name:
+        description: 公司名稱
+        type: string
+      department:
+        description: 部門
+        type: string
+      price:
+        description: 價格
+        type: integer
+      product_name:
+        description: 品名
+        type: string
+      purchase_quantity:
+        description: 數量
+        type: integer
+      updated_by:
+        description: 更新者
+        type: string
+    type: object
 host: api.eirc.app
 info:
   contact:
@@ -764,6 +898,268 @@ paths:
       summary: 更新單一使用者
       tags:
       - Companies
+  /v1.0/authority/purchase:
+    get:
+      consumes:
+      - application/json
+      description: 條件請購編號
+      parameters:
+      - description: JWE Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 請購名稱
+        in: query
+        name: name
+        type: string
+      - description: 請購統一編號
+        in: query
+        name: uniform_number
+        type: string
+      - description: 目前頁數,請從1開始帶入
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: 一次回傳比數,請從1開始帶入,最高上限20
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功後返回的值
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.SuccessfulMessage'
+            - properties:
+                body:
+                  $ref: '#/definitions/purchase.List'
+              type: object
+        "415":
+          description: 必要欄位帶入錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+        "500":
+          description: 伺服器非預期錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+      summary: 條件搜尋請購編號
+      tags:
+      - purchase
+    post:
+      consumes:
+      - application/json
+      description: 新增請購編號
+      parameters:
+      - description: JWE Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 新增請購編號
+        in: body
+        name: '*'
+        required: true
+        schema:
+          $ref: '#/definitions/purchase.Created'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功後返回的值
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.SuccessfulMessage'
+            - properties:
+                body:
+                  type: string
+              type: object
+        "415":
+          description: 必要欄位帶入錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+        "500":
+          description: 伺服器非預期錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+      summary: 新增請購編號
+      tags:
+      - purchase
+  /v1.0/authority/purchase/{purchaseID}:
+    delete:
+      consumes:
+      - application/json
+      description: 刪除請購
+      parameters:
+      - description: JWE Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 請購編號
+        in: path
+        name: purchase_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功後返回的值
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.SuccessfulMessage'
+            - properties:
+                body:
+                  type: string
+              type: object
+        "415":
+          description: 必要欄位帶入錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+        "500":
+          description: 伺服器非預期錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+      summary: 刪除請購
+      tags:
+      - purchase
+    get:
+      consumes:
+      - application/json
+      description: 取得單一請購編號
+      parameters:
+      - description: JWE Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 請購編號
+        in: path
+        name: purchase_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功後返回的值
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.SuccessfulMessage'
+            - properties:
+                body:
+                  $ref: '#/definitions/purchase.Single'
+              type: object
+        "415":
+          description: 必要欄位帶入錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+        "500":
+          description: 伺服器非預期錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+      summary: 取得單一請購編號
+      tags:
+      - purchase
+    patch:
+      consumes:
+      - application/json
+      description: 更新單一使用者
+      parameters:
+      - description: JWE Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 請購編號
+        in: path
+        name: purchaseID
+        required: true
+        type: string
+      - description: 更新請購
+        in: body
+        name: '*'
+        required: true
+        schema:
+          $ref: '#/definitions/purchase.Updated'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功後返回的值
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.SuccessfulMessage'
+            - properties:
+                body:
+                  type: string
+              type: object
+        "415":
+          description: 必要欄位帶入錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+        "500":
+          description: 伺服器非預期錯誤
+          schema:
+            allOf:
+            - $ref: '#/definitions/code.ErrorMessage'
+            - properties:
+                detailed:
+                  type: string
+              type: object
+      summary: 更新單一使用者
+      tags:
+      - purchase
 schemes:
 - https
 swagger: "2.0"
